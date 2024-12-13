@@ -65,4 +65,9 @@ class AuthController {
 
   // Check if user is logged in
   Stream<User?> get currentUser => _firebaseAuth.authStateChanges();
+
+  // Get current user synchronously
+  Future<User?> getCurrentUser() async {
+    return _firebaseAuth.currentUser;
+  }
 }
