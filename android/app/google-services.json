@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "162653738850",
+    "project_id": "systemates-675bf",
+    "storage_bucket": "systemates-675bf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:162653738850:android:c558345d1c08d83767be3b",
+        "android_client_info": {
+          "package_name": "com.example.systemates"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXv07AFg6nmeINdrhGBueg271sr76R4UA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
