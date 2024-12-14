@@ -6,7 +6,7 @@ class AddNewsController {
   final FirebaseFirestore _firebaseFirestore = FirebaseFirestore.instance;
 
   // Method to save news to Firestore
-  Future<bool> saveNews({required String title, required String description}) async {
+  Future<bool> saveNews({required String title, required String description, required String imageUrl}) async {
     try {
       // Get the current logged-in user
       User? user = _firebaseAuth.currentUser;
@@ -18,6 +18,7 @@ class AddNewsController {
       await _firebaseFirestore.collection('news').add({
         'title': title,
         'description': description,
+        'imageUrl' : imageUrl,
         'createdAt': Timestamp.now(),
         'userId': user.uid, // Store the user ID who created the news
       });

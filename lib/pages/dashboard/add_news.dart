@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:systemates/controller/add_news_controller.dart';
-import 'package:systemates/pages/dashboard/home.dart';
 
 class AddNews extends StatelessWidget {
   const AddNews({super.key});
@@ -10,6 +9,7 @@ class AddNews extends StatelessWidget {
     // Create TextEditingControllers for Title and Description
     final TextEditingController _titleController = TextEditingController();
     final TextEditingController _descriptionController = TextEditingController();
+    final TextEditingController _imageUrlController = TextEditingController();
 
     final AddNewsController _addNewsController = AddNewsController();
 
@@ -48,7 +48,7 @@ class AddNews extends StatelessWidget {
                 color: Color.fromARGB(255, 93, 56, 134),
               ),
             ),
-            Container(
+            SizedBox(
               height: 200.0,
               child: TextField(
                 controller: _descriptionController,
@@ -59,19 +59,36 @@ class AddNews extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: 16),
+            const Text(
+              'Image URL',
+              style: TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.bold,
+                color: Color.fromARGB(255, 93, 56, 134),
+              ),
+            ),
+            TextField(
+              controller: _imageUrlController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
             
             const SizedBox(height: 32),
             ElevatedButton(
               onPressed: () async {
-                // Get the title and description from the controllers
+                // Get the title, description, and imageUrl from the controllers
                 String title = _titleController.text.trim();
                 String description = _descriptionController.text.trim();
+                String imageUrl = _imageUrlController.text.trim();
 
-                // Check if title and description are not empty
-                if (title.isEmpty || description.isEmpty) {
+                // Check if title, description, and imageUrl are not empty
+                if (title.isEmpty || description.isEmpty || imageUrl.isEmpty) {
                   // Show a message if fields are empty
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Title and description cannot be empty')),
+                    const SnackBar(content: Text('Title, description, and image URL cannot be empty')),
                   );
                   return;
                 }
@@ -80,6 +97,7 @@ class AddNews extends StatelessWidget {
                 bool success = await _addNewsController.saveNews(
                   title: title,
                   description: description,
+                  imageUrl: imageUrl, // Correct usage of the parameter
                 );
 
                 if (success) {
