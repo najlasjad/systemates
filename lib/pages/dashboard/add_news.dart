@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:systemates/controller/add_news_controller.dart';
+import 'package:systemates/controller/news_controller.dart';
 
 class AddNews extends StatelessWidget {
   const AddNews({super.key});
@@ -7,11 +7,11 @@ class AddNews extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Create TextEditingControllers for Title and Description
-    final TextEditingController _titleController = TextEditingController();
-    final TextEditingController _descriptionController = TextEditingController();
-    final TextEditingController _imageUrlController = TextEditingController();
+    final TextEditingController titleController = TextEditingController();
+    final TextEditingController descriptionController = TextEditingController();
+    final TextEditingController imageUrlController = TextEditingController();
 
-    final AddNewsController _addNewsController = AddNewsController();
+    final NewsController addNewsController = NewsController();
 
     return Scaffold(
       appBar: AppBar(
@@ -32,7 +32,7 @@ class AddNews extends StatelessWidget {
               ),
             ),
             TextField(
-              controller: _titleController,
+              controller: titleController,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
               ),
@@ -51,7 +51,7 @@ class AddNews extends StatelessWidget {
             SizedBox(
               height: 200.0,
               child: TextField(
-                controller: _descriptionController,
+                controller: descriptionController,
                 maxLines: null,
                 expands: true,
                 decoration: const InputDecoration(
@@ -69,7 +69,7 @@ class AddNews extends StatelessWidget {
               ),
             ),
             TextField(
-              controller: _imageUrlController,
+              controller: imageUrlController,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
               ),
@@ -80,9 +80,9 @@ class AddNews extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 // Get the title, description, and imageUrl from the controllers
-                String title = _titleController.text.trim();
-                String description = _descriptionController.text.trim();
-                String imageUrl = _imageUrlController.text.trim();
+                String title = titleController.text.trim();
+                String description = descriptionController.text.trim();
+                String imageUrl = imageUrlController.text.trim();
 
                 // Check if title, description, and imageUrl are not empty
                 if (title.isEmpty || description.isEmpty || imageUrl.isEmpty) {
@@ -94,7 +94,7 @@ class AddNews extends StatelessWidget {
                 }
 
                 // Call the saveNews method from the controller
-                bool success = await _addNewsController.saveNews(
+                bool success = await addNewsController.saveNews(
                   title: title,
                   description: description,
                   imageUrl: imageUrl, // Correct usage of the parameter
