@@ -1,69 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:systemates/pages/dashboard/add_news.dart';
-import 'package:systemates/pages/dashboard/detail_news.dart';
-import 'package:systemates/pages/dashboard/event.dart';
+import 'package:systemates/pages/dashboard/add_event.dart';
+import 'package:systemates/pages/dashboard/detail_event.dart';
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    // Use a ValueNotifier to manage the current index
-    final ValueNotifier<int> currentIndex = ValueNotifier<int>(0);
-
-    // Define the pages
-    final List<Widget> pages = [
-      const HomeContent(),
-      const EventPage(),
-      const Center(child: Text('Profile Page')),
-    ];
-
-    return Scaffold(
-      body: ValueListenableBuilder<int>(
-        valueListenable: currentIndex,
-        builder: (context, index, _) {
-          return pages[index];
-        },
-      ),
-      bottomNavigationBar: ValueListenableBuilder<int>(
-        valueListenable: currentIndex,
-        builder: (context, index, _) {
-          return BottomNavigationBar(
-            currentIndex: index,
-            onTap: (newIndex) {
-              currentIndex.value = newIndex;
-            },
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                label: 'Home',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.article),
-                label: 'Events',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person),
-                label: 'Profile',
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-}
-
-class HomeContent extends StatelessWidget {
-  const HomeContent({super.key});
+class EventPage extends StatelessWidget {
+  const EventPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Computing News',
+          'Computing Events',
           style: TextStyle(
             fontWeight: FontWeight.bold,
             color: Color.fromARGB(255, 93, 56, 134),
@@ -75,15 +23,16 @@ class HomeContent extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const AddNews()),
+                MaterialPageRoute(builder: (context) => const AddEvent()),
               );
             },
           ),
         ],
       ),
+      
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
-            .collection('news')
+            .collection('events')
             .orderBy('createdAt', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
@@ -96,19 +45,19 @@ class HomeContent extends StatelessWidget {
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text("No news available"));
+            return const Center(child: Text("No event available"));
           }
 
-          final newsList = snapshot.data!.docs;
+          final eventList = snapshot.data!.docs;
 
           return ListView.builder(
-            itemCount: newsList.length,
+            itemCount: eventList.length,
             itemBuilder: (context, index) {
-              final newsItem = newsList[index];
-              final documentId = newsItem.id; // Firestore document ID
-              final title = newsItem['title'];
-              final description = newsItem['description'];
-              final imageUrl = newsItem['imageUrl'];
+              final eventItem = eventList[index];
+              final documentId = eventItem.id; // Firestore document ID
+              final title = eventItem['title'];
+              final description = eventItem['description'];
+              final imageUrl = eventItem['imageUrl'];
 
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -171,7 +120,7 @@ class HomeContent extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => DetailNews(
+                                builder: (context) => DetailEvent(
                                   documentId: documentId,
                                   title: title,
                                   description: description,
@@ -198,4 +147,3 @@ class HomeContent extends StatelessWidget {
     );
   }
 }
-
