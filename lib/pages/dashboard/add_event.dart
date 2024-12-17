@@ -108,7 +108,7 @@ class AddEvent extends StatelessWidget {
                 } else {
                   // Show error message
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Failed to save news')),
+                    const SnackBar(content: Text('Failed to save event')),
                   );
                 }
               },

@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:systemates/pages/dashboard/add_news.dart';
 import 'package:systemates/pages/dashboard/detail_news.dart';
 import 'package:systemates/pages/dashboard/event.dart';
+import 'package:systemates/pages/dashboard/profile.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -16,7 +18,7 @@ class HomePage extends StatelessWidget {
     final List<Widget> pages = [
       const HomeContent(),
       const EventPage(),
-      const Center(child: Text('Profile Page')),
+      const ProfilePage(),
     ];
 
     return Scaffold(
@@ -55,13 +57,44 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class HomeContent extends StatelessWidget {
+class HomeContent extends StatefulWidget {
   const HomeContent({super.key});
+
+  @override
+  _HomeContentState createState() => _HomeContentState();
+}
+
+class _HomeContentState extends State<HomeContent> {
+  bool _isAdmin = false; // Default role is non-admin
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAdminRole();
+  }
+
+  // Check if the current user has the 'admin' role
+  Future<void> _checkAdminRole() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .get();
+
+      if (userDoc.exists) {
+        setState(() {
+          _isAdmin = userDoc.data()?['role'] == 'admin'; // Check the role field
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           'Computing News',
           style: TextStyle(
@@ -70,15 +103,16 @@ class HomeContent extends StatelessWidget {
           ),
         ),
         actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AddNews()),
-              );
-            },
-          ),
+          if (_isAdmin) // Show Add button only if user is admin
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AddNews()),
+                );
+              },
+            ),
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
@@ -198,4 +232,3 @@ class HomeContent extends StatelessWidget {
     );
   }
 }
-

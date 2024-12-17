@@ -19,19 +19,21 @@ class AuthController {
         email: email,
         password: password,
       );
-      
-      // Save additional user info to Firestore
+
+      // Get the user after successful sign-up
       User? user = userCredential.user;
       if (user != null) {
-        // Create a user document in Firestore with extra information
+        // Create a user document in Firestore with extra information and default role as "user"
         await _firebaseFirestore.collection('users').doc(user.uid).set({
           'name': name,
           'email': email,
           'phone': phone,
           'batch': batch,
+          'role': 'user',  // Default role set to "user"
           'createdAt': Timestamp.now(),
         });
-        return user;
+
+        return user; // Returning the user object after successful sign-up
       }
     } catch (e) {
       print("Sign Up Failed: $e");
@@ -63,11 +65,41 @@ class AuthController {
     await _firebaseAuth.signOut();
   }
 
-  // Check if user is logged in
-  Stream<User?> get currentUser => _firebaseAuth.authStateChanges();
-
   // Get current user synchronously
   Future<User?> getCurrentUser() async {
     return _firebaseAuth.currentUser;
+  }
+
+  // Update user data
+  Future<void> updateUserData({
+    required String uid,
+    required String name,
+    required String phone,
+    required String batch,
+  }) async {
+    try {
+      await _firebaseFirestore.collection('users').doc(uid).update({
+        'name': name,
+        'phone': phone,
+        'batch': batch,
+      });
+    } catch (e) {
+      print("Failed to update user data: $e");
+    }
+  }
+
+  // Delete user account
+  Future<void> deleteUser(String uid) async {
+    try {
+      // Delete user document from Firestore
+      await _firebaseFirestore.collection('users').doc(uid).delete();
+      // Delete the user's Firebase Authentication account
+      User? user = await _firebaseAuth.currentUser;
+      if (user != null) {
+        await user.delete();
+      }
+    } catch (e) {
+      print("Failed to delete account: $e");
+    }
   }
 }

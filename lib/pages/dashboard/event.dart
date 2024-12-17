@@ -1,10 +1,41 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:systemates/pages/dashboard/add_event.dart';
 import 'package:systemates/pages/dashboard/detail_event.dart';
 
-class EventPage extends StatelessWidget {
+class EventPage extends StatefulWidget {
   const EventPage({super.key});
+
+  @override
+  _EventPageState createState() => _EventPageState();
+}
+
+class _EventPageState extends State<EventPage> {
+  bool _isAdmin = false; // Default role is non-admin
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAdminRole();
+  }
+
+  // Check if the current user has the 'admin' role
+  Future<void> _checkAdminRole() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .get();
+
+      if (userDoc.exists) {
+        setState(() {
+          _isAdmin = userDoc.data()?['role'] == 'admin'; // Check the role field
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,18 +49,18 @@ class EventPage extends StatelessWidget {
           ),
         ),
         actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AddEvent()),
-              );
-            },
-          ),
+          if (_isAdmin) // Show Add button only if user is admin
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AddEvent()),
+                );
+              },
+            ),
         ],
       ),
-      
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('events')
@@ -68,7 +99,7 @@ class EventPage extends StatelessWidget {
                       Image.network(
                         imageUrl,
                         width: double.infinity,
-                        height: 200, 
+                        height: 200,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) => const Center(
                           child: Padding(
