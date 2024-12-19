@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:systemates/pages/dashboard/edit_event.dart';
+import 'package:systemates/pages/dashboard/scannerpage.dart';
 
 class DetailEvent extends StatefulWidget {
   final String documentId;
@@ -22,7 +25,7 @@ class DetailEvent extends StatefulWidget {
 }
 
 class _DetailEventState extends State<DetailEvent> {
-  bool _isAdmin = false; // Default role is non-admin
+  bool _isAdmin = false;
 
   @override
   void initState() {
@@ -30,7 +33,6 @@ class _DetailEventState extends State<DetailEvent> {
     _checkAdminRole();
   }
 
-  // Check if the current user has the 'admin' role
   Future<void> _checkAdminRole() async {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null) {
@@ -41,11 +43,48 @@ class _DetailEventState extends State<DetailEvent> {
 
       if (userDoc.exists) {
         setState(() {
-          _isAdmin = userDoc.data()?['role'] == 'admin'; // Check the role field
+          _isAdmin = userDoc.data()?['role'] == 'admin';
         });
       }
     }
   }
+
+  void _showQRCodeDialog() {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Attendance QR Code'),
+        content: SizedBox(
+          width: 250, // Define a fixed width
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              QrImageView(
+                data: widget.documentId,
+                version: QrVersions.auto,
+                size: 200.0,
+                errorStateBuilder: (context, error) => const Center(
+                  child: Text('Failed to generate QR Code'),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text('Scan this QR code for attendance'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Close'),
+          ),
+        ],
+      );
+    },
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -98,30 +137,74 @@ class _DetailEventState extends State<DetailEvent> {
                     ),
                   ),
                   const SizedBox(height: 32),
-                  if (_isAdmin) // Show Edit/Delete button only for admin users
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => EditEvent(
-                              documentId: widget.documentId, // Pass the document ID
-                              currentTitle: widget.title, // Pass the current title
-                              currentDescription: widget.description, // Pass the current description
-                              currentImageUrl: widget.imageUrl, // Pass the current image URL
-                            ),
+                  if (_isAdmin)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _showQRCodeDialog();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(255, 93, 56, 134),
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size(double.infinity, 50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 93, 56, 134),
-                        foregroundColor: Colors.white,
-                        minimumSize: const Size(double.infinity, 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
                         ),
+                        child: const Text('Generate Attendance QR Code'),
                       ),
-                      child: const Text('Edit/Delete'),
+                    ),
+                  if (_isAdmin)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditEvent(
+                                documentId: widget.documentId,
+                                currentTitle: widget.title,
+                                currentDescription: widget.description,
+                                currentImageUrl: widget.imageUrl,
+                              ),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(255, 93, 56, 134),
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size(double.infinity, 50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text('Edit/Delete'),
+                      ),
+                    ),
+                  if (!_isAdmin)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => QRScannerPage(documentId: widget.documentId),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(255, 93, 56, 134),
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size(double.infinity, 50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text('Scan QR Code for Attendance'),
+                      ),
                     ),
                 ],
               ),

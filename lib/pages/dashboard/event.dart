@@ -41,6 +41,7 @@ class _EventPageState extends State<EventPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           'Computing Events',
           style: TextStyle(
@@ -49,7 +50,7 @@ class _EventPageState extends State<EventPage> {
           ),
         ),
         actions: <Widget>[
-          if (_isAdmin) // Show Add button only if user is admin
+          if (_isAdmin) 
             IconButton(
               icon: const Icon(Icons.add),
               onPressed: () {
